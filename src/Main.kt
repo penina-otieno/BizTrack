@@ -6,7 +6,6 @@
 //         - Lesley Mwangi , 171762
 
 
-
 data class Transaction(val description: String, val amount: Double)
 data class Product(val id: Int, var name: String, var quantity: Int)
 
@@ -15,8 +14,27 @@ fun main() {
     // ------------------------------------------------------
     // BUSINESS INFORMATION
     // ------------------------------------------------------
-    val businessId: Int = 1001
-    val businessName: String = "BizTrack Demo Kiosk"
+    println()
+    println("========================================")
+    println("              B I Z T R A C K")
+    println("  Daily Financial Management Application")
+    println("========================================")
+    println("Let's set up your business first.")
+    println()
+
+    print("Enter your Business ID (numbers only): ")
+    var businessId: Int? = readln().trim().toIntOrNull()
+    while (businessId == null) {
+        print("That's not a valid ID. Please enter a number: ")
+        businessId = readln().trim().toIntOrNull()
+    }
+
+    print("Enter your Business Name: ")
+    var businessName: String = readln().trim()
+    while (businessName.isEmpty()) {
+        print("Business name cannot be empty. Please enter a name: ")
+        businessName = readln().trim()
+    }
 
     // ------------------------------------------------------
     // SALES AND EXPENSES (Collections of Transaction)
@@ -41,12 +59,10 @@ fun main() {
     var running: Boolean = true
 
     println()
-    println("========================================")
-    println("              B I Z T R A C K")
-    println("  Daily Financial Management Application")
-    println("========================================")
+    println("----------------------------------------")
     println("Business ID: $businessId")
     println("Business: $businessName")
+    println("Setup complete! Welcome, $businessName.")
     println()
 
     while (running) {
@@ -61,8 +77,7 @@ fun main() {
         println("4. Track inventory")
         println("5. Create and monitor budget")
         println("6. Search inventory")
-        println("7. Financial literacy tips")
-        println("8. Exit")
+        println("7. Exit")
         println("----------------------------------------")
         print("Choose an option: ")
 
@@ -262,65 +277,11 @@ fun main() {
                 }
             }
 
+
             // ------------------------------------------
-            // 7. FINANCIAL LITERACY TIPS
-            // (when expression, as specified in the concept note)
+            // 7. EXIT
             // ------------------------------------------
             "7" -> {
-                println()
-                println("------- FINANCIAL LITERACY -------")
-                println("1. Revenue")
-                println("2. Profit")
-                println("3. Expenses")
-                println("4. Capital")
-                println("5. Cash Flow")
-                print("Choose a topic: ")
-
-                val topic = readln().trim()
-
-                when (topic) {
-                    "1" -> {
-                        println()
-                        println("REVENUE")
-                        println("Revenue is the total money earned by a business")
-                        println("from selling goods or services, before expenses.")
-                    }
-                    "2" -> {
-                        println()
-                        println("PROFIT")
-                        println("Profit is the money remaining after business")
-                        println("expenses are deducted from revenue.")
-                        println("Formula: Profit = Revenue - Expenses")
-                    }
-                    "3" -> {
-                        println()
-                        println("EXPENSES")
-                        println("Expenses are costs incurred while running a")
-                        println("business, e.g. rent, transport, and restocking.")
-                    }
-                    "4" -> {
-                        println()
-                        println("CAPITAL")
-                        println("Capital is the money or resources used to")
-                        println("start or operate a business.")
-                    }
-                    "5" -> {
-                        println()
-                        println("CASH FLOW")
-                        println("Cash flow is money moving into and out of a")
-                        println("business. Positive cash flow means more money")
-                        println("is coming in than going out.")
-                    }
-                    else -> {
-                        println("Invalid topic selected.")
-                    }
-                }
-            }
-
-            // ------------------------------------------
-            // 8. EXIT
-            // ------------------------------------------
-            "8" -> {
                 println()
                 println("Are you sure you want to exit? (yes/no)")
 
@@ -349,7 +310,7 @@ fun main() {
             // ------------------------------------------
             else -> {
                 println()
-                println("Invalid option. Please choose a number from 1 to 8.")
+                println("Invalid option. Please choose a number from 1 to 7.")
             }
         }
     }
