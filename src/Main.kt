@@ -73,7 +73,7 @@ fun main() {
         println("----------------------------------------")
         println("1. Record daily sale")
         println("2. Record business expense")
-        println("3. View profit / loss status")
+        println("3. View profit and loss status")
         println("4. Track inventory")
         println("5. Create and monitor budget")
         println("6. Search inventory")
