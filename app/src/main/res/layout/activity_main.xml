@@ -80,7 +80,6 @@
                         android:textStyle="bold" />
 
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Total Expenses Card -->
@@ -116,7 +115,6 @@
                         android:textStyle="bold" />
 
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Profit/Loss Card -->
@@ -152,7 +150,6 @@
                         android:textStyle="bold" />
 
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Quick Access Section -->
@@ -165,6 +162,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <!-- Sales -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSales"
                 android:layout_width="match_parent"
@@ -182,9 +180,9 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Expenses -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardExpenses"
                 android:layout_width="match_parent"
@@ -202,9 +200,9 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Inventory -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardInventory"
                 android:layout_width="match_parent"
@@ -222,9 +220,9 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Budget -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardBudget"
                 android:layout_width="match_parent"
@@ -242,9 +240,9 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Reports -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardReports"
                 android:layout_width="match_parent"
@@ -262,10 +260,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
-
             </com.google.android.material.card.MaterialCardView>
-
-
 
             <!-- Recent Activity -->
             <TextView
@@ -278,6 +273,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvRecentActivity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -288,7 +284,6 @@
                 android:textSize="14sp" />
 
         </LinearLayout>
-
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
