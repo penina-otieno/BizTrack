@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_light"
+    android:padding="24dp">
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="← Back to Dashboard" />
+
+    <TextView
+        android:id="@+id/tvModuleTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Module"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/biztrack_navy"
+        android:layout_marginTop="32dp" />
+
+    <TextView
+        android:id="@+id/tvModuleDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Module details will appear here."
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>
