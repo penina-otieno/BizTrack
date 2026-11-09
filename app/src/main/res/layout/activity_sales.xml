@@ -46,4 +46,14 @@
         android:textColor="@color/text_secondary"
         android:layout_marginTop="8dp" />
 
+    <!-- === ADDED BY MICHELLE (MM) === -->
+    <Button
+        android:id="@+id/btnOpenTransactions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Open Sales &amp; Expenses Module"
+        android:backgroundTint="@color/biztrack_navy"
+        android:textColor="@android:color/white" />
+
 </LinearLayout>
