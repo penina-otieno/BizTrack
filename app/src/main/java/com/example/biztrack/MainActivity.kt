@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.biztrack.inventory.InventoryActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +44,8 @@ class MainActivity : AppCompatActivity() {
 
         // Inventory navigation
         findViewById<View>(R.id.cardInventory).setOnClickListener {
-            openModule("Inventory")
+
+            startActivity(Intent(this, InventoryActivity::class.java))
         }
 
         // Budget navigation
