@@ -32,6 +32,14 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".budget.BudgetActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".reports.ReportsActivity"
+            android:exported="false" />
+
         <!-- ADDED FOR MICHELLE'S MODULE -->
         <activity
             android:name=".TransactionActivity"
@@ -42,6 +50,7 @@
             android:name=".inventory.InventoryActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

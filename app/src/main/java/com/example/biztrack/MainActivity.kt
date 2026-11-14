@@ -13,6 +13,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.biztrack.inventory.InventoryActivity
+import com.example.biztrack.budget.BudgetActivity
+import com.example.biztrack.reports.ReportsActivity
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,12 +53,13 @@ class MainActivity : AppCompatActivity() {
 
         // Budget navigation
         findViewById<View>(R.id.cardBudget).setOnClickListener {
-            openModule("Budget")
+            startActivity(Intent(this, BudgetActivity::class.java))
         }
 
         // Reports navigation
         findViewById<View>(R.id.cardReports).setOnClickListener {
-            openModule("Reports")
+            val intent = Intent(this, ReportsActivity::class.java)
+            startActivity(intent)
         }
     }
 

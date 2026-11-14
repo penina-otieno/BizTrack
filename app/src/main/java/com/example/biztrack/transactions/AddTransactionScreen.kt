@@ -86,7 +86,12 @@ fun AddTransactionScreen(
 
             Button(
                 onClick = {
-                    val type = if (selectedTab == 0) "Income" else "Expense"
+                    val type = when (selectedTab) {
+                        0 -> "Income"
+                        1 -> "Expense"
+                        2 -> "Transfer"
+                        else -> return@Button
+                    }
                     val error = viewModel.addTransaction(type, title, amount)
                     if (error == null) {
                         onSaveSuccess() // go back to history

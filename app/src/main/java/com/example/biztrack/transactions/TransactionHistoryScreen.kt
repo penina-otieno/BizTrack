@@ -1,3 +1,4 @@
+
 package com.example.biztrack.ui.transactions
 
 import androidx.compose.foundation.background
@@ -29,8 +30,12 @@ fun TransactionHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Transaction History", color = Color.White) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1E232C))
+                title = {
+                    Text("Transaction History", color = Color.White)
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF1E232C)
+                )
             )
         },
         floatingActionButton = {
@@ -39,26 +44,58 @@ fun TransactionHistoryScreen(
                 containerColor = Color(0xFFF84040),
                 contentColor = Color.White
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Transaction")
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add Transaction"
+                )
             }
         }
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(Color(0xFFF8F9FA))
         ) {
+
             if (transactions.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No transactions yet. Add one!", color = Color.Gray)
+
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        "No transactions yet. Add one!",
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(onClick = onAddClick) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add Transaction"
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text("Add Transaction")
+                    }
                 }
+
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     items(transactions) { transaction ->
                         TransactionCard(
                             transaction = transaction,
-                            onDelete = { viewModel.deleteTransaction(transaction) }
+                            onDelete = {
+                                viewModel.deleteTransaction(transaction)
+                            }
                         )
                     }
                 }
@@ -91,21 +128,41 @@ fun TransactionCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(transaction.title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(transaction.date, color = Color.Gray, fontSize = 12.sp)
-                Text(transaction.type, color = Color.Gray, fontSize = 12.sp)
+                Text(
+                    transaction.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+
+                Text(
+                    transaction.date,
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+
+                Text(
+                    transaction.type,
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "$amountPrefix Rs. ${transaction.amount}",
+                    text = "$amountPrefix KES ${transaction.amount}",
                     color = amountColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
+
                 Spacer(modifier = Modifier.width(12.dp))
+
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.Red
+                    )
                 }
             }
         }
