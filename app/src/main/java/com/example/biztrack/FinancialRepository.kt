@@ -4,7 +4,8 @@ import java.util.UUID
 
 enum class TransactionType {
     SALE,
-    EXPENSE
+    EXPENSE,
+    TRANSFER
 }
 
 data class FinancialTransaction(
