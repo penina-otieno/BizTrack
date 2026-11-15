@@ -1,9 +1,9 @@
-
 package com.example.biztrack.budget
 
-import androidx.lifecycle.ViewModel
-import androidx.compose.runtime.mutableStateOf
+//now loads the saved budget on startup and persists updates to Room-David
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
 import com.example.biztrack.FinancialRepository
 
 class BudgetViewModel : ViewModel() {
@@ -14,12 +14,11 @@ class BudgetViewModel : ViewModel() {
     private val _totalSpent = mutableStateOf(0.0)
     val totalSpent: State<Double> = _totalSpent
 
-    // Load spending from the shared financial repository.
     init {
+        _totalBudget.value = FinancialRepository.getBudget()
         refreshSpending()
     }
 
-    // Calculate the total expenses recorded in the repository.
     fun refreshSpending() {
         _totalSpent.value = FinancialRepository.getTotalExpenses()
     }
@@ -40,6 +39,7 @@ class BudgetViewModel : ViewModel() {
     fun setBudget(amount: Double) {
         if (amount >= 0) {
             _totalBudget.value = amount
+            FinancialRepository.saveBudget(amount)
         }
     }
 }
