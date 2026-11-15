@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -59,4 +60,13 @@ dependencies {
 
     // THIS IS THE MAGIC LINE FOR observeAsState()
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+
+    // Configure ROOM dependencies for gradle
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // ViewModel & LiveData support
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
 }
