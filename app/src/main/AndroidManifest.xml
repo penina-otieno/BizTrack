@@ -29,6 +29,11 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ExpenseManagementActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ModuleActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

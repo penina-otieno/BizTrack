@@ -41,8 +41,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Expenses navigation
+        // Expenses navigation
         findViewById<View>(R.id.cardExpenses).setOnClickListener {
-            openModule("Expenses")
+            val intent = Intent(this, ExpenseManagementActivity::class.java)
+            startActivity(intent)
         }
 
         // Inventory navigation
