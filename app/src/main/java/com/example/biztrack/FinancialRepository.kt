@@ -1,6 +1,7 @@
+
 package com.example.biztrack
 
-//added to ROOM -David
+import android.content.Context
 import com.example.biztrack.data.local.BizTrackDatabase
 import com.example.biztrack.data.local.dao.BudgetDao
 import com.example.biztrack.data.local.dao.TransactionDao
@@ -28,92 +29,153 @@ object FinancialRepository {
 
     private var transactionDao: TransactionDao? = null
     private var budgetDao: BudgetDao? = null
+    private var sessionManager: SessionManager? = null
 
-    fun init(database: BizTrackDatabase) {
+    fun init(database: BizTrackDatabase, context: Context) {
         transactionDao = database.transactionDao()
         budgetDao = database.budgetDao()
+        sessionManager = SessionManager(context.applicationContext)
     }
 
-    // Add a transaction
+    private fun currentUserId(): String =
+        sessionManager?.getCurrentUserId()
+            ?: error("No active user session")
+
+    // ADD TRANSACTION
+
     fun addTransaction(transaction: FinancialTransaction) {
         require(transaction.amount > 0) {
             "Transaction amount must be greater than zero"
         }
+
+        val userId = currentUserId()
+
         runBlocking(Dispatchers.IO) {
-            transactionDao?.insertTransaction(transaction.toEntity())
+            transactionDao?.insertTransaction(
+                transaction.toEntity(userId)
+            )
         }
     }
 
-    // Retrieve all transactions
+    // GET CURRENT USER'S TRANSACTIONS
+
     fun getAllTransactions(): List<FinancialTransaction> {
+        val userId = currentUserId()
+
         return runBlocking(Dispatchers.IO) {
-            transactionDao?.getAllTransactionsList()?.map { it.toDomainModel() } ?: emptyList()
+            transactionDao
+                ?.getAllTransactionsList(userId)
+                ?.map { it.toDomainModel() }
+                ?: emptyList()
         }
     }
 
-    // Update an existing transaction
+    // UPDATE TRANSACTION
+
     fun updateTransaction(transaction: FinancialTransaction) {
         require(transaction.amount > 0) {
             "Transaction amount must be greater than zero"
         }
+
+        val userId = currentUserId()
+
         runBlocking(Dispatchers.IO) {
-            transactionDao?.updateTransaction(transaction.toEntity())
+            val existing = transactionDao
+                ?.getAllTransactionsList(userId)
+                ?.any { it.id == transaction.id } ?: false
+
+            if (existing) {
+                transactionDao?.updateTransaction(
+                    transaction.toEntity(userId)
+                )
+            }
         }
     }
 
-    // Delete a transaction
+    // DELETE TRANSACTION
+
     fun deleteTransaction(id: String) {
+        val userId = currentUserId()
+
         runBlocking(Dispatchers.IO) {
-            transactionDao?.deleteTransactionById(id)
+            transactionDao?.deleteTransactionById(id, userId)
         }
     }
 
-    // Calculate total sales
+    // TOTAL SALES
+
     fun getTotalSales(): Double {
         return getAllTransactions()
             .filter { it.type == TransactionType.SALE }
             .sumOf { it.amount }
     }
 
-    // Calculate total expenses
+    // TOTAL EXPENSES
+
     fun getTotalExpenses(): Double {
         return getAllTransactions()
             .filter { it.type == TransactionType.EXPENSE }
             .sumOf { it.amount }
     }
 
-    // Calculate profit or loss
+    // PROFIT OR LOSS
+
     fun getProfitLoss(): Double {
         return getTotalSales() - getTotalExpenses()
     }
 
-    // Save budget limit to Room
+    // SAVE CURRENT USER'S BUDGET
+
     fun saveBudget(amount: Double) {
+        require(amount >= 0) {
+            "Budget cannot be negative"
+        }
+
+        val userId = currentUserId()
+
         runBlocking(Dispatchers.IO) {
-            budgetDao?.saveBudget(BudgetEntity(id = 1, allocatedAmount = amount))
+            budgetDao?.saveBudget(
+                BudgetEntity(
+                    userId = userId,
+                    allocatedAmount = amount
+                )
+            )
         }
     }
 
-    // Retrieve saved budget limit from Room
+    // GET CURRENT USER'S BUDGET
+
     fun getBudget(): Double {
+        val userId = currentUserId()
+
         return runBlocking(Dispatchers.IO) {
-            budgetDao?.getMainBudget()?.allocatedAmount ?: 0.0
+            budgetDao?.getMainBudget(userId)?.allocatedAmount ?: 0.0
         }
     }
 
-    private fun FinancialTransaction.toEntity() = TransactionEntity(
+    // CONVERT TO ROOM ENTITY
+
+    private fun FinancialTransaction.toEntity(
+        userId: String
+    ) = TransactionEntity(
         id = id,
         description = description,
         amount = amount,
         type = type.name,
-        date = date
+        date = date,
+        userId = userId
     )
 
-    private fun TransactionEntity.toDomainModel() = FinancialTransaction(
-        id = id,
-        description = description,
-        amount = amount,
-        type = runCatching { TransactionType.valueOf(type) }.getOrDefault(TransactionType.EXPENSE),
-        date = date
-    )
+    // CONVERT FROM ROOM ENTITY
+
+    private fun TransactionEntity.toDomainModel() =
+        FinancialTransaction(
+            id = id,
+            description = description,
+            amount = amount,
+            type = runCatching {
+                TransactionType.valueOf(type)
+            }.getOrDefault(TransactionType.EXPENSE),
+            date = date
+        )
 }

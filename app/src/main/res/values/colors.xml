@@ -2,21 +2,25 @@
 <resources>
 
     <!-- Main brand colours -->
-    <color name="biztrack_navy">#17324D</color>
-    <color name="biztrack_green">#21966B</color>
+    <color name="biztrack_navy">#164B38</color>
+    <color name="biztrack_green">#23845B</color>
 
     <!-- Background colours -->
-    <color name="background_light">#F5F7FA</color>
+    <color name="background_light">#F4F8F5</color>
     <color name="card_white">#FFFFFF</color>
 
     <!-- Text colours -->
-    <color name="text_primary">#243447</color>
-    <color name="text_secondary">#718096</color>
+    <color name="text_primary">#19352A</color>
+    <color name="text_secondary">#718078</color>
 
     <!-- Financial status colours -->
     <color name="profit_green">#16865B</color>
     <color name="loss_red">#D64545</color>
     <color name="warning_orange">#E99A32</color>
+
+    <!-- Accent colours -->
+    <color name="biztrack_lime">#C5DC69</color>
+    <color name="biztrack_green_light">#E5F1E9</color>
 
     <!-- General colours -->
     <color name="black">#FF000000</color>

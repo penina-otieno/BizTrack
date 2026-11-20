@@ -13,8 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BizTrack">
 
+        <!-- LOGIN: APP LAUNCHER -->
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -22,6 +23,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- REGISTRATION -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- MAIN DASHBOARD -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".SalesActivity"
@@ -46,12 +59,13 @@
             android:name=".reports.ReportsActivity"
             android:exported="false" />
 
-        <!-- ADDED FOR MICHELLE'S MODULE -->
+        <!-- TRANSACTION MODULE -->
         <activity
             android:name=".TransactionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- INVENTORY MODULE -->
         <activity
             android:name=".inventory.InventoryActivity"
             android:exported="false"

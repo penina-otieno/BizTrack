@@ -1,64 +1,76 @@
+
 package com.example.biztrack.inventory
 
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import java.util.UUID
 
-/**
- * INVENTORY MODULE - James Gachago
- *
- * Holds the inventory screen state and does all validation.
- * Functions that can fail return an error message (String) or null on success,
- * the same pattern used in TransactionViewModel.
- */
-class InventoryViewModel(application: Application) : AndroidViewModel(application) {
+class InventoryViewModel(application: Application) :
+    AndroidViewModel(application) {
 
-    private val repository = InventoryRepository.getInstance(application)
+    private val repository =
+        InventoryRepository.getInstance(application)
 
-    var products by mutableStateOf(repository.getAll())
+    // INVENTORY STATE
+
+    var products by mutableStateOf<List<Product>>(emptyList())
         private set
 
     var searchQuery by mutableStateOf("")
 
     var filter by mutableStateOf(StockFilter.ALL)
 
-    // ---------- Derived values (recomputed automatically when state changes) ----------
+    // FILTERED PRODUCTS
 
-    /** Products after applying the search box and the filter chips. */
     val visibleProducts: List<Product>
-        get() {
-            val query = searchQuery.trim()
-            return products
-                .filter { p ->
-                    query.isEmpty() ||
-                            p.name.contains(query, ignoreCase = true) ||
-                            p.category.contains(query, ignoreCase = true)
-                }
-                .filter { p ->
-                    when (filter) {
-                        StockFilter.ALL -> true
-                        StockFilter.LOW -> p.isLowStock
-                        StockFilter.OUT -> p.isOutOfStock
-                    }
-                }
-                .sortedBy { it.name.lowercase() }
+        get() = products.filter { product ->
+
+            val matchesSearch =
+                product.name.contains(searchQuery, ignoreCase = true) ||
+                        product.category.contains(searchQuery, ignoreCase = true)
+
+            val matchesFilter = when (filter) {
+                StockFilter.ALL -> true
+                StockFilter.LOW -> product.isLowStock
+                StockFilter.OUT -> product.isOutOfStock
+            }
+
+            matchesSearch && matchesFilter
         }
 
-    val totalProducts: Int get() = products.size
-    val lowStockCount: Int get() = products.count { it.isLowStock }
-    val totalStockValue: Double get() = products.sumOf { it.stockValue }
+    // SUMMARY VALUES
 
-    fun findProduct(id: String?): Product? =
-        if (id == null) null else products.firstOrNull { it.id == id }
+    val totalProducts: Int
+        get() = products.size
 
-    // ---------- CREATE + UPDATE (with validation) ----------
+    val lowStockCount: Int
+        get() = products.count { it.isLowStock }
 
-    /**
-     * Adds a new product (existingId == null) or edits an existing one.
-     * Returns an error message, or null if saved successfully.
-     */
+    val totalStockValue: Double
+        get() = products.sumOf { it.stockValue }
+
+    init {
+        loadProducts()
+    }
+
+    // LOAD PRODUCTS
+
+    fun loadProducts() {
+        products = repository.getAll()
+    }
+
+    // FIND PRODUCT FOR EDITING
+
+    fun findProduct(id: String?): Product? {
+        if (id == null) return null
+        return products.find { it.id == id }
+    }
+
+    // ADD OR UPDATE PRODUCT
+
     fun saveProduct(
         existingId: String?,
         name: String,
@@ -67,89 +79,108 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
         priceText: String,
         reorderText: String
     ): String? {
+
         val cleanName = name.trim()
-        if (cleanName.isEmpty()) return "Product name is required"
+
+        if (cleanName.isBlank()) {
+            return "Please enter a product name."
+        }
+
         if (cleanName.length > Product.MAX_NAME_LENGTH) {
-            return "Product name must be ${Product.MAX_NAME_LENGTH} characters or fewer"
-        }
-        if (products.any { it.id != existingId && it.name.equals(cleanName, ignoreCase = true) }) {
-            return "A product named \"$cleanName\" already exists"
-        }
-        if (category.isBlank()) return "Please choose a category"
-
-        val quantity = quantityText.trim().toIntOrNull()
-        if (quantity == null || quantity < 0 || quantity > Product.MAX_QUANTITY) {
-            return "Quantity must be a whole number from 0 to ${Product.MAX_QUANTITY}"
+            return "Product name is too long."
         }
 
-        val price = priceText.trim().toDoubleOrNull()
-        if (price == null || price.isNaN() || price.isInfinite() || price <= 0.0 || price > Product.MAX_PRICE) {
-            return "Price must be a valid amount in KES greater than 0"
+        if (category !in PRODUCT_CATEGORIES) {
+            return "Please select a valid category."
         }
 
-        val reorder = reorderText.trim().toIntOrNull()
-        if (reorder == null || reorder < 0 || reorder > Product.MAX_QUANTITY) {
-            return "Low-stock level must be a whole number (0 or more)"
+        val quantity = quantityText.toIntOrNull()
+            ?: return "Enter a valid stock quantity."
+
+        if (quantity !in 0..Product.MAX_QUANTITY) {
+            return "Quantity must be between 0 and ${Product.MAX_QUANTITY}."
         }
+
+        val price = priceText.toDoubleOrNull()
+            ?: return "Enter a valid selling price."
+
+        if (!price.isFinite() || price <= 0 ||
+            price > Product.MAX_PRICE
+        ) {
+            return "Enter a price greater than zero and within the allowed limit."
+        }
+
+        val reorderLevel = reorderText.toIntOrNull()
+            ?: return "Enter a valid reorder level."
+
+        if (reorderLevel !in 0..Product.MAX_QUANTITY) {
+            return "Enter a valid reorder level."
+        }
+
+        val product = Product(
+            id = existingId ?: UUID.randomUUID().toString(),
+            name = cleanName,
+            category = category,
+            quantity = quantity,
+            unitPrice = price,
+            reorderLevel = reorderLevel,
+            updatedAt = System.currentTimeMillis()
+        )
 
         if (existingId == null) {
-            repository.add(
-                Product(
-                    name = cleanName,
-                    category = category,
-                    quantity = quantity,
-                    unitPrice = price,
-                    reorderLevel = reorder
-                )
-            )
+            repository.add(product)
         } else {
-            val existing = findProduct(existingId) ?: return "That product no longer exists"
-            repository.update(
-                existing.copy(
-                    name = cleanName,
-                    category = category,
-                    quantity = quantity,
-                    unitPrice = price,
-                    reorderLevel = reorder
-                )
-            )
+            repository.update(product)
         }
-        refresh()
+
+        loadProducts()
         return null
     }
 
-    // ---------- STOCK UPDATE ----------
+    // UPDATE STOCK
 
-    /**
-     * Adds stock ([adding] = true) or removes stock ([adding] = false).
-     * Returns an error message, or null on success.
-     */
-    fun updateStock(productId: String, amountText: String, adding: Boolean): String? {
-        val product = findProduct(productId) ?: return "That product no longer exists"
+    fun updateStock(
+        id: String,
+        amountText: String,
+        adding: Boolean
+    ): String? {
 
-        val amount = amountText.trim().toIntOrNull()
-        if (amount == null || amount <= 0) return "Enter a whole number greater than 0"
-        if (amount > Product.MAX_QUANTITY) return "That quantity is too large"
+        val amount = amountText.toIntOrNull()
+            ?: return "Enter a valid quantity."
 
-        val newQuantity = if (adding) product.quantity.toLong() + amount else product.quantity.toLong() - amount
-        if (newQuantity < 0) return "Not enough stock. Only ${product.quantity} in stock."
-        if (newQuantity > Product.MAX_QUANTITY) return "Stock cannot exceed ${Product.MAX_QUANTITY} units"
+        if (amount <= 0) {
+            return "Quantity must be greater than zero."
+        }
 
-        repository.adjustStock(productId, if (adding) amount else -amount)
-        refresh()
+        val product = findProduct(id)
+            ?: return "Product could not be found."
+
+        val newQuantity = if (adding) {
+            product.quantity.toLong() + amount.toLong()
+        } else {
+            product.quantity.toLong() - amount.toLong()
+        }
+
+        if (newQuantity < 0) {
+            return "You cannot remove more stock than is available."
+        }
+
+        if (newQuantity > Product.MAX_QUANTITY) {
+            return "Stock quantity exceeds the allowed limit."
+        }
+
+        val difference = if (adding) amount else -amount
+
+        repository.adjustStock(id, difference)
+
+        loadProducts()
         return null
     }
 
-    // ---------- DELETE ----------
+    // DELETE PRODUCT
 
-    fun deleteProduct(productId: String) {
-        repository.delete(productId)
-        refresh()
-    }
-
-    // ---------- Reload from storage ----------
-
-    fun refresh() {
-        products = repository.getAll()
+    fun deleteProduct(id: String) {
+        repository.delete(id)
+        loadProducts()
     }
 }
