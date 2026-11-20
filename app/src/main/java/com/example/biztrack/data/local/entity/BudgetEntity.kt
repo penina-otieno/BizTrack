@@ -1,11 +1,13 @@
 package com.example.biztrack.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "budgets")
+@Entity(
+    tableName = "budgets",
+    primaryKeys = ["userId", "category", "period"]
+)
 data class BudgetEntity(
-    @PrimaryKey val id: Int = 1,
+    val userId: String,
     val category: String = "Overall",
     val allocatedAmount: Double,
     val period: String = "Current"

@@ -9,18 +9,31 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import androidx.lifecycle.lifecycleScope
 import com.example.biztrack.inventory.InventoryActivity
 import com.example.biztrack.budget.BudgetActivity
 import com.example.biztrack.reports.ReportsActivity
-
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var sessionManager: SessionManager
+    private lateinit var authRepository: AuthRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sessionManager = SessionManager(applicationContext)
+        authRepository = AuthRepository(applicationContext)
+
+        if (!sessionManager.isLoggedIn()) {
+            redirectToLogin()
+            return
+        }
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
@@ -35,50 +48,79 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Sales navigation
+        // Load the logged-in user's profile.
+        loadUserProfile()
+
+        // Logout
+        findViewById<View>(R.id.btnLogout).setOnClickListener {
+            logout()
+        }
+
+        // Dashboard navigation
         findViewById<View>(R.id.cardSales).setOnClickListener {
             openSales()
         }
 
-        // Expenses navigation
-        // Expenses navigation
         findViewById<View>(R.id.cardExpenses).setOnClickListener {
-            val intent = Intent(this, ExpenseManagementActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, ExpenseManagementActivity::class.java))
         }
 
-        // Inventory navigation
         findViewById<View>(R.id.cardInventory).setOnClickListener {
-
             startActivity(Intent(this, InventoryActivity::class.java))
         }
 
-        // Budget navigation
         findViewById<View>(R.id.cardBudget).setOnClickListener {
             startActivity(Intent(this, BudgetActivity::class.java))
         }
 
-        // Reports navigation
         findViewById<View>(R.id.cardReports).setOnClickListener {
-            val intent = Intent(this, ReportsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, ReportsActivity::class.java))
         }
     }
 
+    private fun loadUserProfile() {
+        lifecycleScope.launch {
+            val user = authRepository.getCurrentUser()
+
+            if (user != null) {
+                findViewById<TextView>(R.id.tvUserName).text =
+                    "Welcome, ${user.fullName}!"
+
+                findViewById<TextView>(R.id.tvBusinessName).text =
+                    user.businessName
+            } else {
+                logout()
+            }
+        }
+    }
+
+    private fun logout() {
+        sessionManager.clearSession()
+
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        startActivity(intent)
+        finish()
+    }
+
+    private fun redirectToLogin() {
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        startActivity(intent)
+        finish()
+    }
+
     private fun openSales() {
-        val intent = Intent(this, SalesActivity::class.java)
-        startActivity(intent)
+        startActivity(Intent(this, SalesActivity::class.java))
     }
 
-    private fun openModule(moduleName: String) {
-        val intent = Intent(this, ModuleActivity::class.java)
-        intent.putExtra("MODULE_NAME", moduleName)
-        startActivity(intent)
-    }
-
-    // Update dashboard financial figures
     private fun updateDashboard() {
-
         val totalSales = FinancialRepository.getTotalSales()
         val totalExpenses = FinancialRepository.getTotalExpenses()
         val profitLoss = FinancialRepository.getProfitLoss()
@@ -100,12 +142,10 @@ class MainActivity : AppCompatActivity() {
             profitText.setTextColor(getColor(R.color.loss_red))
         }
 
-        // Update recent activity
         updateRecentActivity()
     }
 
     private fun updateRecentActivity() {
-
         val recentTransactions = FinancialRepository
             .getAllTransactions()
             .sortedByDescending { it.date }
@@ -118,19 +158,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val dateFormat = SimpleDateFormat(
-            "dd MMM yyyy",
-            Locale.getDefault()
-        )
-
+        val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         val result = StringBuilder()
 
         for (transaction in recentTransactions) {
-
-            val type = if (transaction.type == TransactionType.SALE) {
-                "SALE"
-            } else {
-                "EXPENSE"
+            val type = when (transaction.type) {
+                TransactionType.SALE -> "SALE"
+                TransactionType.EXPENSE -> "EXPENSE"
+                TransactionType.TRANSFER -> "TRANSFER"
             }
 
             val amount = String.format(
@@ -148,9 +183,16 @@ class MainActivity : AppCompatActivity() {
         activityText.text = result.toString().trim()
     }
 
-    // Refresh dashboard whenever user returns to it
     override fun onResume() {
         super.onResume()
+
+        if (!::sessionManager.isInitialized) return
+
+        if (!sessionManager.isLoggedIn()) {
+            redirectToLogin()
+            return
+        }
+
         updateDashboard()
     }
 }

@@ -1,5 +1,7 @@
+
 package com.example.biztrack.inventory
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -13,16 +15,29 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.biztrack.LoginActivity
+import com.example.biztrack.SessionManager
 
-/**
+/*
  * INVENTORY MODULE - James Gachago
- *
- * Entry point of the inventory module. Opened from the dashboard's
- * Inventory card (see MainActivity).
+ * Entry point of the inventory module.
  */
 class InventoryActivity : ComponentActivity() {
+
+    private lateinit var sessionManager: SessionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sessionManager = SessionManager(applicationContext)
+
+        // Prevent access without login.
+        if (!sessionManager.isLoggedIn()) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
+
         setContent {
             MaterialTheme(
                 colorScheme = lightColorScheme(
@@ -40,16 +55,20 @@ class InventoryActivity : ComponentActivity() {
     }
 }
 
-/** Switches between the inventory list and the add/edit form. */
+/* Switches between the inventory list and the add/edit form. */
 @Composable
 fun InventoryApp(
     onExit: () -> Unit,
     viewModel: InventoryViewModel = viewModel()
 ) {
-    var showForm by rememberSaveable { mutableStateOf(false) }
-    var editingId by rememberSaveable { mutableStateOf<String?>(null) }
+    var showForm by rememberSaveable {
+        mutableStateOf(false)
+    }
 
-    // System back button closes the form first instead of leaving the module.
+    var editingId by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
     BackHandler(enabled = showForm) {
         showForm = false
         editingId = null

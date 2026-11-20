@@ -1,5 +1,6 @@
 package com.example.biztrack.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -11,5 +12,8 @@ data class ProductEntity(
     val quantity: Int,
     val unitPrice: Double,
     val reorderLevel: Int,
-    val updatedAt: Long
+    val updatedAt: Long,
+
+    @ColumnInfo(defaultValue = "'legacy_unclaimed'")
+    val userId: String = "legacy_unclaimed"
 )
